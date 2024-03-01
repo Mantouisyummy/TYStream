@@ -27,7 +27,7 @@ class Twitch:
         }
         return headers
     
-    def check_stream(self, streamer_name: str) -> TwitchStreamData:
+    def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
         headers = self.get_headers()
         stream = requests.get('https://api.twitch.tv/helix/streams?user_login=' + streamer_name, headers=headers)
         stream_data = stream.json()

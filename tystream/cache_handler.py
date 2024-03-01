@@ -32,7 +32,7 @@ class CacheHandler():
     
 class CacheFileHandler(CacheHandler):
     """
-    Handles reading and writing cached Spotify authorization tokens
+    Handles reading and writing cached Twitch authorization tokens
     as json files on disk.
     """
 

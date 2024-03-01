@@ -3,6 +3,7 @@ import time
 
 from typing import Optional
 from tystream.cache_handler import CacheFileHandler
+from tystream.exceptions import OauthException
 
 class TwitchOauth:
     def __init__(self, client_id: str, client_secret: str, session: Optional[requests.Session] = None) -> None:
@@ -27,7 +28,24 @@ class TwitchOauth:
             "grant_type": 'client_credentials'
         }
 
-        token_info = self.session.post('https://id.twitch.tv/oauth2/token', data).json()
-        self.cache_handler.save_token_to_cache(token_info)
-        access_token = token_info['access_token']
-        return access_token
+        response = self.session.post('https://id.twitch.tv/oauth2/token', data)
+        if response.ok:
+            self.cache_handler.save_token_to_cache(token_info)
+            access_token = token_info['access_token']
+            return access_token
+        else:
+            raise OauthException("Twitch Get Access Token Failed.")
+
+class YoutubeOauth:
+    def __init__(self, api_key: str, session: Optional[requests.Session] = None) -> None:
+        self.session = requests.Session() or session
+        self.api_key = api_key
+    
+    def validation_token(self):
+        response = self.session.get(f"https://www.googleapis.com/youtube/v3/search?part=snippet&q=YouTube+Data+API&type=video&key={self.api_key}")
+        if response.ok:
+            return True
+        else:
+            raise OauthException("Youtube API Validation Failed. Please check YouTube Data API is enabled in the Google Developer Console.\nOr Check your api_key is enter correctly.")
+
+    
