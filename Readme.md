@@ -43,12 +43,14 @@ python3 -m pip install tystream
 ### Twitch
 `client_id` 和 `client_secret` 分別為你在 <a href="#twitch">註冊API教學 (Twitch)</a> 中拿到的 `用戶端ID`和`用戶端密碼`   
 `streamer_name` 為 `twitch.tv/...` 後的名稱
+### 同步方法
 ```py
 from tystream import Twitch
 twitch = Twitch("client_id", "client_secret")
 stream = twitch.check_stream_live("streamer_name")
 print(stream.url)
 ```
+### 非同步方法
 
 ### Youtube
 `api_key` 為你在 <a href="#youtube">註冊API教學 (Youtube)</a> 中拿到的 `API金鑰`  
