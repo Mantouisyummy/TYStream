@@ -24,9 +24,10 @@ class Youtube:
             url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle={username}&key={self.api_key}"
 
             response = self.session.get(url)
+            result = response.json()
 
-            if response.json()['items']:
-                return response.json()['items'][0]['id']
+            if result['items']:
+                return result['items'][0]['id']
             else:
                 raise NoResultException("Not Found Any Channel.")
     
@@ -34,9 +35,10 @@ class Youtube:
         url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.api_key}"
 
         response = self.session.get(url)
+        result = response.json()
 
-        if response.json()['items']:
-            return response.json()['items'][0]['id']['videoId']
+        if result['items']:
+            return result['items'][0]['id']['videoId']
         else:
             return False
     
@@ -48,7 +50,8 @@ class Youtube:
             url = f'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.api_key}'
 
             response = self.session.get(url)
-            snippet = response.json()['items'][0]['snippet']
+            result = response.json()
+            snippet = result['items'][0]['snippet']
             data = {k: snippet[k] for k in list(snippet.keys())[:7]}
 
             self.logger.log(20, f"{username} is live!")

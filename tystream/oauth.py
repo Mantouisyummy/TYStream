@@ -30,6 +30,7 @@ class TwitchOauth:
 
         response = self.session.post('https://id.twitch.tv/oauth2/token', data)
         if response.ok:
+            token_info = response.json()
             self.cache_handler.save_token_to_cache(token_info)
             access_token = token_info['access_token']
             return access_token
