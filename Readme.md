@@ -51,13 +51,37 @@ stream = twitch.check_stream_live("streamer_name")
 print(stream.url)
 ```
 ### 非同步方法
+```py
+from tystream.async_api import Twitch
+import asyncio
+
+async def main():
+    twitch = Twitch("1aw3wxdp0w8bbg6q464sh96ocn4f6y", "h07eh797n7hejbct1cqd6drybaq468")
+    stream = await twitch.check_stream_live("kannazukilubee")
+    print(stream.url)
+
+asyncio.run(main())
+```
 
 ### Youtube
 `api_key` 為你在 <a href="#youtube">註冊API教學 (Youtube)</a> 中拿到的 `API金鑰`  
 `streamer_name` 為實況主頻道網址 `https://www.youtube.com/...` 後的名稱 (有無`@`都亦可)
+### 同步方法
 ```py
 from tystream import Youtube
 youtube = Youtube("api_key")
 stream = youtube.check_stream_live("streamer_name")
 print(stream.url)
+```
+### 非同步方法
+```py
+from tystream.async_api import Youtube
+import asyncio
+
+async def main():
+    youtube = Youtube("AIzaSyC0fyvIgZ6PWbhdRAspm0XCwaNQ3CZLLlA")
+    stream = await youtube.check_stream_live("kannazukilubee")
+    print(stream.url)
+
+asyncio.run(main())
 ```
