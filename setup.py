@@ -1,13 +1,13 @@
 from os import path
 from setuptools import setup
 
-with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+with open(path.join(path.abspath(path.dirname(__file__)), 'Readme.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
 
 setup(name='tystream',
-      version='1.0.0',
+      version='{{VERSION_PLACEHOLDER}}',
       author='Mantouisyummy',
       author_email='opcantel@gmail.com',
       description='A Python library for Twitch & Youtube Stream Notification.',
