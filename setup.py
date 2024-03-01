@@ -7,7 +7,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 
 setup(name='tystream',
-      version='1.0.0',
+      version='{{VERSION_PLACEHOLDER}}',
       author='Mantouisyummy',
       author_email='opcantel@gmail.com',
       description='A Python library for Twitch & Youtube Stream Notification.',
