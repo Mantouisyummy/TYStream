@@ -56,7 +56,7 @@ from tystream.async_api import Twitch
 import asyncio
 
 async def main():
-    twitch = Twitch("1aw3wxdp0w8bbg6q464sh96ocn4f6y", "h07eh797n7hejbct1cqd6drybaq468")
+    twitch = Twitch("client_id", "client_secret")
     stream = await twitch.check_stream_live("kannazukilubee")
     print(stream.url)
 
@@ -79,7 +79,7 @@ from tystream.async_api import Youtube
 import asyncio
 
 async def main():
-    youtube = Youtube("AIzaSyC0fyvIgZ6PWbhdRAspm0XCwaNQ3CZLLlA")
+    youtube = Youtube("api_key")
     stream = await youtube.check_stream_live("kannazukilubee")
     print(stream.url)
 
