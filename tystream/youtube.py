@@ -18,6 +18,24 @@ class Youtube:
         self.logger = logging.getLogger(__name__)
 
     def _get_channel_id(self, username: str) -> str:
+        """
+        Get the ID of a YouTube channel by its username.
+
+        Parameters
+        ----------
+        username : :class:`str`
+            The username of the YouTube channel.
+
+        Returns
+        -------
+        :class:`str`
+            The ID of the YouTube channel.
+
+        Raises
+        ------
+        :class:`NoResultException`
+            If no channel is found for the given username.
+        """
         oauth = YoutubeOauth(self.api_key)
         
         if oauth.validation_token():
@@ -32,6 +50,20 @@ class Youtube:
                 raise NoResultException("Not Found Any Channel.")
     
     def _get_live_id(self, channelid: str) -> str:
+        """
+        Get the ID of the live stream for a YouTube channel.
+
+        Parameters
+        ----------
+        channelid : :class:`str`
+            The ID of the YouTube channel.
+
+        Returns
+        -------
+        :class:`str`
+            The ID of the live stream if a live stream is found.
+            False if no live stream is found.
+        """
         url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.api_key}"
 
         response = self.session.get(url)
@@ -43,6 +75,20 @@ class Youtube:
             return False
     
     def check_stream_live(self, username: str) -> YoutubeStreamData:
+        """
+        Check if stream is live.
+
+        Parameters
+        ----------
+        username : :class:`str`
+            The username of the YouTube channel.
+
+        Returns
+        -------
+        :class:`YoutubeStreamData`
+            An instance of the YoutubeStreamData class containing information about the live stream.
+            If the stream is not live, an empty YoutubeStreamData instance is returned.s
+        """
         channelId = self._get_channel_id(username)
         LiveId = self._get_live_id(channelId)
 
@@ -58,7 +104,7 @@ class Youtube:
             return YoutubeStreamData(id=LiveId, **data)
         else:
             self.logger.log(20, f"{username} is not live.")
-            return False
+            return YoutubeStreamData()
             
 
             
