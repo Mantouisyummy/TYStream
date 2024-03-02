@@ -1,6 +1,15 @@
 # TYStream
 TYStream is A Python library for Twitch & Youtube Stream Notification.
 
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]]
+[![Stargazers][stars-shield]]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![PyPI - Version][pypi-shield]][pypi-url]
+
+
+
 ## 安裝套件
 ```python
 # Windows
@@ -84,4 +93,28 @@ async def main():
     print(stream.url)
 
 asyncio.run(main())
+
 ```
+<!-- SHIELDS -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[contributors-url]: https://github.com/Mantouisyummy/TYStream/graphs/contributors
+
+[forks-shield]: https://img.shields.io/github/forks/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[stars-shield]: https://img.shields.io/github/stars/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[stars-stars]: https://github.com/Mantouisyummy/TYStream/stargazers 
+
+[issues-shield]: https://img.shields.io/github/issues/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[issues-url]: https://github.com/Mantouisyummy/TYStream/issues
+
+[license-shield]: https://img.shields.io/github/license/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[license-url]: https://github.com/Mantouisyummy/TYStream/blob/master/LICENSE.md
+
+[pypi-shield]: https://img.shields.io/pypi/v/tystream?style=for-the-badge&label=pypi&link=https%3A%2F%2Fpypi.org%2Fproject%2Ftystream%2F
+
+[pypi-url]: https://pypi.org/project/tystream/
