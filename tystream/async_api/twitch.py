@@ -7,6 +7,7 @@ from typing import Optional
 import aiohttp
 import logging
 
+
 class Twitch:
     def __init__(self, client_id: str, client_secret: str) -> None:
         setup_logging()
@@ -18,14 +19,14 @@ class Twitch:
     async def _renew_token(self):
         oauth = TwitchOauth(self.client_id, self.client_secret)
         return await oauth.get_access_token()
-    
+
     async def _get_headers(self):
         headers = {
-            'Client-ID': self.client_id,
-            'Authorization': 'Bearer ' + await self._renew_token()
+            "Client-ID": self.client_id,
+            "Authorization": "Bearer " + await self._renew_token(),
         }
         return headers
-    
+
     async def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
         """
         Check if stream is live.
@@ -43,12 +44,15 @@ class Twitch:
         """
         headers = await self._get_headers()
         async with aiohttp.ClientSession() as session:
-             async with session.get('https://api.twitch.tv/helix/streams?user_login=' + streamer_name, headers=headers) as stream:
-                    stream_data = await stream.json()
+            async with session.get(
+                "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
+                headers=headers,
+            ) as stream:
+                stream_data = await stream.json()
 
-        if not stream_data['data']:
+        if not stream_data["data"]:
             self.logger.log(25, f"{streamer_name} is not live.")
             return TwitchStreamData()
         else:
             self.logger.log(25, f"{streamer_name} is live!")
-            return TwitchStreamData(**stream_data['data'][0])
+            return TwitchStreamData(**stream_data["data"][0])

@@ -9,8 +9,11 @@ from tystream.data import YoutubeStreamData
 import requests
 import logging
 
+
 class Youtube:
-    def __init__(self, api_key: str, session: Optional[requests.Session] = None) -> None:
+    def __init__(
+        self, api_key: str, session: Optional[requests.Session] = None
+    ) -> None:
         setup_logging()
 
         self.api_key = api_key
@@ -37,18 +40,18 @@ class Youtube:
             If no channel is found for the given username.
         """
         oauth = YoutubeOauth(self.api_key)
-        
+
         if oauth.validation_token():
             url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle={username}&key={self.api_key}"
 
             response = self.session.get(url)
             result = response.json()
 
-            if result['items']:
-                return result['items'][0]['id']
+            if result["items"]:
+                return result["items"][0]["id"]
             else:
                 raise NoResultException("Not Found Any Channel.")
-    
+
     def _get_live_id(self, channelid: str) -> str:
         """
         Get the ID of the live stream for a YouTube channel.
@@ -69,11 +72,11 @@ class Youtube:
         response = self.session.get(url)
         result = response.json()
 
-        if result['items']:
-            return result['items'][0]['id']['videoId']
+        if result["items"]:
+            return result["items"][0]["id"]["videoId"]
         else:
             return False
-    
+
     def check_stream_live(self, username: str) -> YoutubeStreamData:
         """
         Check if stream is live.
@@ -93,11 +96,11 @@ class Youtube:
         LiveId = self._get_live_id(channelId)
 
         if LiveId:
-            url = f'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.api_key}'
+            url = f"https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.api_key}"
 
             response = self.session.get(url)
             result = response.json()
-            snippet = result['items'][0]['snippet']
+            snippet = result["items"][0]["snippet"]
             data = {k: snippet[k] for k in list(snippet.keys())[:7]}
 
             self.logger.log(20, f"{username} is live!")
@@ -105,6 +108,3 @@ class Youtube:
         else:
             self.logger.log(20, f"{username} is not live.")
             return YoutubeStreamData()
-            
-
-            
