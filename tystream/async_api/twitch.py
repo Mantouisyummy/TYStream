@@ -1,14 +1,17 @@
+import logging
+import aiohttp
+
 from tystream.async_api.oauth import TwitchOauth
 from tystream.logger import setup_logging
 from tystream.data import TwitchStreamData
 
-from typing import Optional
-
-import aiohttp
-import logging
-
+# pylint: disable=too-few-public-methods
+# pylint: disable=missing-module-docstring
 
 class Twitch:
+    """
+    A class for interacting with the Twitch API to check the status of live streams.
+    """
     def __init__(self, client_id: str, client_secret: str) -> None:
         setup_logging()
 
@@ -51,8 +54,7 @@ class Twitch:
                 stream_data = await stream.json()
 
         if not stream_data["data"]:
-            self.logger.log(25, f"{streamer_name} is not live.")
+            self.logger.log(25, "%s is not live.", streamer_name)
             return False
-        else:
-            self.logger.log(25, f"{streamer_name} is live!")
-            return TwitchStreamData(**stream_data["data"][0])
+        self.logger.log(25, "%s is live!", streamer_name)
+        return TwitchStreamData(**stream_data["data"][0])

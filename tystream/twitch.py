@@ -1,20 +1,26 @@
-from tystream.oauth import TwitchOauth
-from tystream.logger import setup_logging
-from tystream.data import TwitchStreamData
+import logging
 
 from typing import Optional
 
 import requests
-import logging
 
+from tystream.oauth import TwitchOauth
+from tystream.logger import setup_logging
+from tystream.data import TwitchStreamData
+
+# pylint: disable=too-few-public-methods
+# pylint: disable=missing-module-docstring
 
 class Twitch:
+    """
+    A class for interacting with the Twitch API to check the status of live streams.
+    """
     def __init__(
         self,
         client_id: str,
         client_secret: str,
         session: Optional[requests.Session] = None,
-    ) -> None:
+    ):
         setup_logging()
 
         self.client_id = client_id
@@ -52,12 +58,12 @@ class Twitch:
         stream = requests.get(
             "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
             headers=headers,
+            timeout=10
         )
         stream_data = stream.json()
 
         if not stream_data["data"]:
-            self.logger.log(25, f"{streamer_name} is not live.")
+            self.logger.log(25, "%s is not live.", streamer_name)
             return TwitchStreamData()
-        else:
-            self.logger.log(25, f"{streamer_name} is live!")
-            return TwitchStreamData(**stream_data["data"][0])
+        self.logger.log(25, "%s is live!", streamer_name)
+        return TwitchStreamData(**stream_data["data"][0])
