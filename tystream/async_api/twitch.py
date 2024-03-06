@@ -40,7 +40,7 @@ class Twitch:
         -------
         :class:`TwitchStreamData`
             An instance of the TwitchStreamData class containing information about the live stream.
-            If the stream is not live, an empty TwitchStreamData instance is returned.
+            If the stream is not live, returned False.
         """
         headers = await self._get_headers()
         async with aiohttp.ClientSession() as session:
@@ -52,7 +52,7 @@ class Twitch:
 
         if not stream_data["data"]:
             self.logger.log(25, f"{streamer_name} is not live.")
-            return TwitchStreamData()
+            return False
         else:
             self.logger.log(25, f"{streamer_name} is live!")
             return TwitchStreamData(**stream_data["data"][0])

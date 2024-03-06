@@ -90,7 +90,7 @@ class Youtube:
         -------
         :class:`YoutubeStreamData`
             An instance of the YoutubeStreamData class containing information about the live stream.
-            If the stream is not live, an empty YoutubeStreamData instance is returned.s
+            If the stream is not live, returned False.
         """
         channelId = self._get_channel_id(username)
         LiveId = self._get_live_id(channelId)
@@ -107,4 +107,4 @@ class Youtube:
             return YoutubeStreamData(id=LiveId, **data)
         else:
             self.logger.log(20, f"{username} is not live.")
-            return YoutubeStreamData()
+            return False

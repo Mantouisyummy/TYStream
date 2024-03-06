@@ -46,7 +46,7 @@ class Twitch:
         -------
         :class:`TwitchStreamData`
             An instance of the TwitchStreamData class containing information about the live stream.
-            If the stream is not live, an empty TwitchStreamData instance is returned.
+            If the stream is not live, returned False.
         """
         headers = self._get_headers()
         stream = requests.get(
