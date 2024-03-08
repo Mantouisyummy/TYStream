@@ -5,7 +5,7 @@ import aiohttp
 
 from tystream.async_api.oauth import TwitchOauth
 from tystream.logger import setup_logging
-from tystream.data import TwitchStreamData, TwitchVODData
+from tystream.data import TwitchStreamData, TwitchVODData, TwitchUserData
 
 class Twitch:
     """
@@ -30,6 +30,31 @@ class Twitch:
         }
         return headers
 
+    async def get_user(self, streamer_name: str) -> TwitchUserData:
+        """
+        Get Twitch User Info.
+
+        Parameters
+        ----------
+        streamer_name : :class:`str`
+            The streamer_name of the Twitch Live channel.
+
+        Returns
+        -------
+        :class:`TwitchUserData`
+            Twitch User Dataclass.
+        """
+        headers = await self._get_headers()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.twitch.tv/helix/users?login=" + streamer_name,
+                headers=headers,
+                timeout=10
+            ) as user:
+                user_data = await user.json()['data']
+                return TwitchUserData(**user_data)
+
     async def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
         """
         Check if stream is live.
@@ -46,6 +71,8 @@ class Twitch:
             If the stream is not live, returned False.
         """
         headers = await self._get_headers()
+        user = await self.get_user(streamer_name)
+
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
@@ -56,8 +83,9 @@ class Twitch:
         if not stream_data["data"]:
             self.logger.log(25, "%s is not live.", streamer_name)
             return False
+
         self.logger.log(25, "%s is live!", streamer_name)
-        return TwitchStreamData(**stream_data["data"][0])
+        return TwitchStreamData(**stream_data["data"][0], user=user)
 
     async def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
@@ -77,19 +105,13 @@ class Twitch:
             It is recommended to execute this function\n
             after the Stream is end in order to retrieve the latest VOD data.
         """
-        headers = self._get_headers()
+        headers = await self._get_headers()
 
+        user = await self.get_user(streamer_name)
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.twitch.tv/helix/users?login=" + streamer_name,
+                f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
                 headers=headers
-            ) as user:
-                user_data = user.json()["data"]
-                user_id = user_data["id"]
-
-                async with session.get(
-                    f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive",
-                    headers=headers
-                ) as vod:
-                    vod_data = vod.json()["data"][0]
-                    return TwitchVODData(**vod_data)
+            ) as vod:
+                vod_data = await vod.json()["data"][0]
+                return TwitchVODData(**vod_data)

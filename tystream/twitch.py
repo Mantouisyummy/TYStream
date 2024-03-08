@@ -8,7 +8,7 @@ import requests
 
 from tystream.oauth import TwitchOauth
 from tystream.logger import setup_logging
-from tystream.data import TwitchStreamData, TwitchVODData
+from tystream.data import TwitchStreamData, TwitchVODData, TwitchUserData
 
 class Twitch:
     """
@@ -38,6 +38,32 @@ class Twitch:
         }
         return headers
 
+    def get_user(self, streamer_name: str) -> TwitchUserData:
+        """
+        Get Twitch User Info.
+
+        Parameters
+        ----------
+        streamer_name : :class:`str`
+            The streamer_name of the Twitch Live channel.
+
+        Returns
+        -------
+        :class:`TwitchUserData`
+            Twitch User Dataclass.
+        """
+        headers = self._get_headers()
+
+        user = requests.get(
+            "https://api.twitch.tv/helix/users?login=" + streamer_name,
+            headers=headers,
+            timeout=10
+        )
+
+        user_data = user.json()['data']
+        return TwitchUserData(**user_data)
+
+
     def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
         """
         Check if stream is live.
@@ -54,6 +80,9 @@ class Twitch:
             If the stream is not live, returned False.
         """
         headers = self._get_headers()
+
+        user = self.get_user(streamer_name)
+
         stream = requests.get(
             "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
             headers=headers,
@@ -65,7 +94,7 @@ class Twitch:
             self.logger.log(25, "%s is not live.", streamer_name)
             return False
         self.logger.log(25, "%s is live!", streamer_name)
-        return TwitchStreamData(**stream_data["data"][0])
+        return TwitchStreamData(**stream_data["data"][0], user=user)
 
     def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
@@ -87,16 +116,10 @@ class Twitch:
         """
         headers = self._get_headers()
 
-        user = requests.get(
-            "https://api.twitch.tv/helix/users?login=" + streamer_name,
-            headers=headers,
-            timeout=10
-        )
-        user_data = user.json()['data']
-        user_id = user_data['id']
+        user = self.get_user(streamer_name)
 
         vod = requests.get(
-            f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive",
+            f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
             headers=headers,
             timeout=10
         )

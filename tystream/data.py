@@ -47,6 +47,48 @@ class Thumbnails:
     maxres: Thumbnail
 
 @dataclass
+class TwitchUserData:
+    """
+    Twitch User Dataclass.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        An ID that identifies the user.
+    login: :class:`str`
+        The user's login name.
+    display_name: :class:`str`
+        The user's display name.
+    type: :class:`str`
+        The type of user.
+    broadcaster_type: :class:`str`
+        The type of broadcaster.
+    description: :class:`str`
+        The user's description of their channel.
+    profile_image_url: :class:`str`
+        A URL to the user's profile image.
+    offline_image_url: :class:`str`
+        A URL to the user's offline image.
+    view_count: :class:`int`
+        This field has been deprecated. don't use it.
+    email: :class:`str`
+        The user's verified email address. 
+    created_at: :class:`str`
+        The UTC date and time that the user's account was created.
+    """
+    id: str
+    login: str
+    display_name: str
+    type: str
+    broadcaster_type: str
+    description: str
+    profile_image_url: str
+    offline_image_url: str
+    view_count: int
+    email: str
+    created_at: str
+
+@dataclass
 class TwitchStreamData:
     """
     Twitch Stream Resource Dataclass.
@@ -86,6 +128,8 @@ class TwitchStreamData:
         The tags applied to the stream.
     url: :class:`str`
         The stream’s url.
+    user: :class:`TwitchUserData`
+        The Streamer Info.
     """
     id: int = field(default=None)
     user_id: int = field(default=None)
@@ -102,6 +146,7 @@ class TwitchStreamData:
     is_mature: bool = field(repr=False, default_factory=bool, default=None)
     tag_ids: List = field(repr=False, default_factory=list, default=None) # deprecated flag too
     tags: List[str] = field(default_factory=list, default=None)
+    user: TwitchUserData = field(default=None)
 
     def __post_init__(self):
         self.url = "https://www.twitch.tv/" + self.user_login
