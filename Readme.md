@@ -114,7 +114,7 @@ asyncio.run(main())
 
 [license-shield]: https://img.shields.io/github/license/Mantouisyummy/TYStream.svg?style=for-the-badge
 
-[license-url]: https://github.com/Mantouisyummy/TYStream/blob/master/LICENSE.md
+[license-url]: https://github.com/Mantouisyummy/TYStream/blob/main/LICENSE.md
 
 [pypi-shield]: https://img.shields.io/pypi/v/tystream?style=for-the-badge
 
