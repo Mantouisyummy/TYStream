@@ -1,13 +1,11 @@
+# pylint: disable=missing-module-docstring
+# pylint: disable=too-few-public-methods
 import logging
 import aiohttp
 
 from tystream.async_api.oauth import TwitchOauth
 from tystream.logger import setup_logging
 from tystream.data import TwitchStreamData, TwitchVODData
-
-# pylint: disable=too-few-public-methods
-# pylint: disable=missing-module-docstring
-
 
 class Twitch:
     """
@@ -84,15 +82,14 @@ class Twitch:
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 "https://api.twitch.tv/helix/users?login=" + streamer_name,
-                headers=headers,
-                timeout=10,
+                headers=headers
             ) as user:
                 user_data = user.json()["data"]
                 user_id = user_data["id"]
 
                 async with session.get(
-                    f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive"
+                    f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive",
+                    headers=headers
                 ) as vod:
                     vod_data = vod.json()["data"][0]
-
                     return TwitchVODData(**vod_data)

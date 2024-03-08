@@ -1,3 +1,5 @@
+# pylint: disable=missing-module-docstring
+# pylint: disable=too-few-public-methods
 import logging
 
 from typing import Optional
@@ -8,9 +10,6 @@ from tystream.logger import setup_logging
 from tystream.exceptions import NoResultException
 from tystream.oauth import YoutubeOauth
 from tystream.data import YoutubeStreamData
-
-# pylint: disable=too-few-public-methods
-# pylint: disable=missing-module-docstring
 
 class Youtube:
     """

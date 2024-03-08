@@ -1,3 +1,5 @@
+# pylint: disable=missing-module-docstring
+# pylint: disable=too-few-public-methods
 import logging
 
 from typing import Optional
@@ -7,9 +9,6 @@ import requests
 from tystream.oauth import TwitchOauth
 from tystream.logger import setup_logging
 from tystream.data import TwitchStreamData, TwitchVODData
-
-# pylint: disable=too-few-public-methods
-# pylint: disable=missing-module-docstring
 
 class Twitch:
     """
@@ -67,7 +66,7 @@ class Twitch:
             return False
         self.logger.log(25, "%s is live!", streamer_name)
         return TwitchStreamData(**stream_data["data"][0])
-    
+
     def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
         Retrieve the latest Twitch Stream VOD data.
@@ -97,7 +96,9 @@ class Twitch:
         user_id = user_data['id']
 
         vod = requests.get(
-            f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive"
+            f"https://api.twitch.tv/helix/videos?user_id={user_id}&type=archive",
+            headers=headers,
+            timeout=10
         )
         vod_data = vod.json()['data'][0]
 
