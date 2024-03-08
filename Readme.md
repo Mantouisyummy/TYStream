@@ -7,8 +7,7 @@ TYStream is A Python library for Twitch & Youtube Stream Notification.
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![PyPI - Version][pypi-shield]][pypi-url]
-
-
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tystream?style=for-the-badge)
 
 ## 安裝套件
 ```python
