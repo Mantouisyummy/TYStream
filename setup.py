@@ -23,10 +23,6 @@ setup(name='tystream',
           "aiohttp>=3.8.6"
       ],
       packages=['tystream'],
-      install_requires=[
-        "requests>=2.25.0",
-        "aiohttp>=3.8.6"
-      ],
       keywords=['Twitch', 'Youtube', 'stream', 'stream Notification', 'Notification'],
       license='GNU',
       classifiers=[
