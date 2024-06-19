@@ -17,6 +17,11 @@ setup(name='tystream',
       project_urls={
           'Issue Tracker': 'https://github.com/Mantouisyummy/TYStream'
       },
+      install_requires=[
+          "requests>=2.25.0",
+          "colorlog>=6.8.2",
+          "aiohttp>=3.8.6"
+      ],
       packages=['tystream'],
       keywords=['Twitch', 'Youtube', 'stream', 'stream Notification', 'Notification'],
       license='GNU',
