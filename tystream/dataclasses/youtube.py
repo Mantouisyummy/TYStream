@@ -79,7 +79,7 @@ class YoutubeStreamData:
     description: str = field(default=None)
     thumbnails: Thumbnails = field(default=None)
     channelTitle: str = field(default=None)
-    tags: List[str] = field(default_factory=list, default=None)
+    tags: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.url = "https://www.youtube.com/watch?v=" + self.id

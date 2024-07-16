@@ -101,9 +101,9 @@ class TwitchStreamData:
     started_at: datetime = field(default=None)
     language: str = field(default=None)
     thumbnail_url: str = field(default=None)
-    is_mature: bool = field(repr=False, default_factory=bool, default=None)
-    tag_ids: List = field(repr=False, default_factory=list, default=None) # deprecated flag too
-    tags: List[str] = field(default_factory=list, default=None)
+    is_mature: bool = field(repr=False, default_factory=bool)
+    tag_ids: List = field(repr=False, default_factory=list) # deprecated flag
+    tags: List[str] = field(default_factory=list)
     user: TwitchUserData = field(default=None)
 
     def __post_init__(self):
@@ -168,7 +168,7 @@ class TwitchVODData:
     language: str = field(default=None)
     type: str = field(default=None)
     duration: str = field(default=None)
-    muted_segments: List[Dict] = field(default=None, default_factory=list)
+    muted_segments: List[Dict] = field(default_factory=list)
 
     def __post_init__(self):
         self.thumbnail_url = self.thumbnail_url.replace("%{width}x%{height}", "320x180")
