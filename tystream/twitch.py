@@ -8,7 +8,7 @@ import requests
 
 from tystream.oauth import TwitchOauth
 from tystream.logger import setup_logging
-from tystream.data import TwitchStreamData, TwitchVODData, TwitchUserData
+from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchUserData
 
 class Twitch:
     """

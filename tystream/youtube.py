@@ -4,7 +4,7 @@ from typing import Optional, Literal
 
 from tystream.exceptions import NoResultException
 from tystream.oauth import YoutubeOauth
-from tystream.data import YoutubeStreamData
+from tystream.dataclasses.youtube import YoutubeStreamData
 
 import requests
 import logging
