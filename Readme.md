@@ -1,3 +1,8 @@
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]  
 ![PyPI - Version](https://img.shields.io/pypi/v/tystream?style=for-the-badge&color=green&link=https%3A%2F%2Fpypi.org%2Fproject%2Ftystream%2F)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tystream?style=for-the-badge&link=https%3A%2F%2Fpypi.org%2Fproject%2Ftystream%2F)
 # TYStream
@@ -87,3 +92,24 @@ async def main():
 
 asyncio.run(main())
 ```
+<!-- SHIELDS -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[contributors-url]: https://github.com/Mantouisyummy/TYStream/graphs/contributors
+
+[forks-shield]: https://img.shields.io/github/forks/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[forks-url]: https://github.com/Mantouisyummy/TYStream/network/members
+
+[stars-shield]: https://img.shields.io/github/stars/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[stars-url]: https://github.com/Mantouisyummy/TYStream/stargazers
+
+[issues-shield]: https://img.shields.io/github/issues/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[issues-url]: https://github.com/Mantouisyummy/TYStream/issues
+
+[license-shield]: https://img.shields.io/github/license/Mantouisyummy/TYStream.svg?style=for-the-badge
+
+[license-url]: https://github.com/Mantouisyummy/TYStream/blob/main/LICENSE.txt
