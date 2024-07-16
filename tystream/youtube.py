@@ -109,8 +109,8 @@ class Youtube:
             snippet = result["items"][0]["snippet"]
             data = {k: snippet[k] for k in list(snippet.keys())[:7]}
 
-            self.logger.log(20, f"{username} is live!")
+            self.logger.debug(20, f"{username} is live!")
             return YoutubeStreamData(id=LiveId, **data)
         else:
-            self.logger.log(20, f"{username} is not live.")
+            self.logger.debug(20, f"{username} is not live.")
             return False

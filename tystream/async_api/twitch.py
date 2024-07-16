@@ -85,10 +85,10 @@ class Twitch:
                 stream_data = await stream.json()
 
         if not stream_data["data"]:
-            self.logger.log(25, "%s is not live.", streamer_name)
+            self.logger.debug(25, "%s is not live.", streamer_name)
             return False
 
-        self.logger.log(25, "%s is live!", streamer_name)
+        self.logger.debug(25, "%s is live!", streamer_name)
         return TwitchStreamData(**stream_data["data"][0], user=user)
 
     async def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
