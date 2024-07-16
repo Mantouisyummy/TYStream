@@ -17,6 +17,16 @@ class TwitchOauth:
         now = int(time.time())
         return now - token_info["expires_in"] < 60
 
+    async def validation_token(self):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"https://id.twitch.tv/oauth2/validate"
+            ) as response:
+                if response.ok:
+                    return True
+                else:
+                    raise OauthException("Twitch API Validation Failed.")
+
     async def get_access_token(self) -> str:
         token_info = self.cache_handler.get_cached_token()
         if token_info and not await self.is_token_expired(token_info):

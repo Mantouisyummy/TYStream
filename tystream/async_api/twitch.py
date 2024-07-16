@@ -21,6 +21,7 @@ class Twitch:
 
     async def _renew_token(self):
         oauth = TwitchOauth(self.client_id, self.client_secret)
+        await oauth.validation_token()
         return await oauth.get_access_token()
 
     async def _get_headers(self):
@@ -52,10 +53,11 @@ class Twitch:
                 headers=headers,
                 timeout=10
             ) as user:
-                user_data = await user.json()['data']
+                data = await user.json()
+                user_data = data["data"][0]
                 return TwitchUserData(**user_data)
 
-    async def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
+    async def check_stream_live(self, streamer_name: str) -> TwitchStreamData | bool:
         """
         Check if stream is live.
 

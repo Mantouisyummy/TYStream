@@ -29,6 +29,7 @@ class Twitch:
 
     def _renew_token(self):
         oauth = TwitchOauth(self.client_id, self.client_secret, self.session)
+        oauth.validation_token()
         return oauth.get_access_token()
 
     def _get_headers(self):

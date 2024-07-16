@@ -16,8 +16,6 @@ class Youtube:
 
         self.oauth = YoutubeOauth(api_key)
 
-        self.oauth.validation_token()
-
         self.logger = logging.getLogger(__name__)
         self.BASE_URL = "https://www.googleapis.com/youtube/v3"
 
@@ -90,11 +88,13 @@ class Youtube:
             An instance of the YoutubeStreamData class containing information about the live stream.
             If the stream is not live, returned False.
         """
+        await self.oauth.validation_token()
+
         channelId = await self._get_channel_id(username)
         LiveId = await self._get_live_id(channelId)
 
         if LiveId:
-            url = f'{self.BASE_URL}/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}'
+            url = f"{self.BASE_URL}/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}"
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
