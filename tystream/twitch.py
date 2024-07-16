@@ -54,7 +54,7 @@ class Twitch:
         """
         headers = self._get_headers()
 
-        user = requests.get(
+        user = self.session.get(
             "https://api.twitch.tv/helix/users?login=" + streamer_name,
             headers=headers,
             timeout=10
@@ -83,7 +83,7 @@ class Twitch:
 
         user = self.get_user(streamer_name)
 
-        stream = requests.get(
+        stream = self.session.get(
             "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
             headers=headers,
             timeout=10
@@ -95,6 +95,7 @@ class Twitch:
             return False
         self.logger.log(25, "%s is live!", streamer_name)
         return TwitchStreamData(**stream_data["data"][0], user=user)
+
 
     def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
@@ -118,7 +119,7 @@ class Twitch:
 
         user = self.get_user(streamer_name)
 
-        vod = requests.get(
+        vod = self.session.get(
             f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
             headers=headers,
             timeout=10
