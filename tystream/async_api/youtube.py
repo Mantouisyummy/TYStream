@@ -1,10 +1,8 @@
 from tystream.logger import setup_logging
 
-from typing import Optional
-
 from tystream.exceptions import NoResultException
 from tystream.async_api.oauth import YoutubeOauth
-from tystream.data import YoutubeStreamData
+from tystream.dataclasses.youtube import YoutubeStreamData
 
 import aiohttp
 import logging
@@ -16,8 +14,12 @@ class Youtube:
     def __init__(self, api_key: str) -> None:
         setup_logging()
 
-        self.api_key = api_key
+        self.oauth = YoutubeOauth(api_key)
+
+        self.oauth.validation_token()
+
         self.logger = logging.getLogger(__name__)
+        self.BASE_URL = "https://www.googleapis.com/youtube/v3"
 
     async def _get_channel_id(self, username: str) -> str:
         """
@@ -37,19 +39,16 @@ class Youtube:
         ------
         :class:`NoResultException`
             If no channel is found for the given username.
-        """
-        oauth = YoutubeOauth(self.api_key)
-        
-        if await oauth.validation_token():
-            url = f"{self.base_url}/channels?part=snippet&forHandle={username}&key={self.api_key}"
+        """  
+        url = f"{self.BASE_URL}/channels?part=snippet&forHandle={username}&key={self.oauth.api_key}"
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    result = await response.json()
-                    if result['items']:
-                        return result['items'][0]['id']
-                    else:
-                        raise NoResultException("Not Found Any Channel.")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                result = await response.json()
+                if result['items']:
+                    return result['items'][0]['id']
+                else:
+                    raise NoResultException("Not Found Any Channel.")
     
     async def _get_live_id(self, channelid: str) -> str:
         """
@@ -66,7 +65,7 @@ class Youtube:
            The ID of the live stream if a live stream is found.
            Return False if no live stream is found.
         """
-        url = f"{self.base_url}/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.api_key}"
+        url = f"{self.BASE_URL}/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -95,7 +94,7 @@ class Youtube:
         LiveId = await self._get_live_id(channelId)
 
         if LiveId:
-            url = f'{self.base_url}/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.api_key}'
+            url = f'{self.BASE_URL}/youtube/v3/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}'
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
@@ -108,6 +107,3 @@ class Youtube:
         else:
             self.logger.log(20, f"{username} is not live.")
             return False
-            
-
-            

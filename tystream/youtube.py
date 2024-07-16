@@ -9,18 +9,22 @@ from tystream.dataclasses.youtube import YoutubeStreamData
 import requests
 import logging
 
+
 class Youtube:
-    def __init__(self, api_key: str, session: Optional[requests.Session] = None) -> None:
+    def __init__(
+        self, api_key: str, session: Optional[requests.Session] = None
+    ) -> None:
         setup_logging()
 
         self.oauth = YoutubeOauth(api_key)
-        self.session = session or requests.Session()
-        self.logger = logging.getLogger(__name__)
-        self.base_url = "https://www.googleapis.com/youtube/v3"
 
-    def _get_channel_id(self, username: str) -> str:
-        if self.oauth.validation_token():
-            url = f"{self.base_url}/channels?part=snippet&forHandle={username}&key={self.oauth.api_key}"
+        self.oauth.validation_token()
+
+        self.logger = logging.getLogger(__name__)
+
+        self.session = session or requests.Session()
+        self.BASE_URL = "https://www.googleapis.com/youtube/v3"
+
     def _get_channel_id(self, username: str) -> str:
         """
         Get the ID of a YouTube channel by its username.
@@ -40,22 +44,19 @@ class Youtube:
         :class:`NoResultException`
             If no channel is found for the given username.
         """
-        oauth = YoutubeOauth(self.api_key)
+        url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet \
+        &forHandle={username}&key={self.oauth.api_key}"
 
-        if oauth.validation_token():
-            url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet \
-            &forHandle={username}&key={self.api_key}"
+        response = self.session.get(url)
+        result = response.json()
 
-            response = self.session.get(url)
-            result = response.json()
+        if result["items"]:
+            return result["items"][0]["id"]
+        else:
+            raise NoResultException("Not Found Any Channel.")
 
-            if result['items']:
-                return result['items'][0]['id']
-            else:
-                raise NoResultException("Not Found Any Channel.")
-    
     def _get_live_id(self, channelid: str) -> str:
-        url = f"{self.base_url}/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
+        url = f"{self.BASE_URL}/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
         """
         Get the ID of the live stream for a YouTube channel.
 
@@ -71,16 +72,16 @@ class Youtube:
             False if no live stream is found.
         """
         url = f"https://www.googleapis.com/youtube/v3/search?part=snippet \
-        &channelId={channelid}&eventType=live&type=video&key={self.api_key}"
+        &channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
 
         response = self.session.get(url)
         result = response.json()
 
-        if result['items']:
-            return result['items'][0]['id']['videoId']
+        if result["items"]:
+            return result["items"][0]["id"]["videoId"]
         else:
             return False
-    
+
     def check_stream_live(self, username: str) -> YoutubeStreamData:
         """
         Check if stream is live.
@@ -100,11 +101,11 @@ class Youtube:
         LiveId = self._get_live_id(channelId)
 
         if LiveId:
-            url = f'{self.base_url}/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}'
+            url = f"{self.BASE_URL}/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}"
 
             response = self.session.get(url)
             result = response.json()
-            snippet = result['items'][0]['snippet']
+            snippet = result["items"][0]["snippet"]
             data = {k: snippet[k] for k in list(snippet.keys())[:7]}
 
             self.logger.log(20, f"{username} is live!")
@@ -112,6 +113,3 @@ class Youtube:
         else:
             self.logger.log(20, f"{username} is not live.")
             return False
-            
-
-            

@@ -52,12 +52,17 @@ class YoutubeOauth:
         self.api_key = api_key
 
     def validation_token(self):
-        response = self.session.get(
-            f"https://www.googleapis.com/youtube/v3/search?part=snippet&q=YouTube+Data+API&type=video&key={self.api_key}"
-        )
-        if response.ok:
-            return True
-        else:
+        try:
+            r = self.session.get(
+                f"https://www.googleapis.com/youtube/v3/search?part=snippet&q=YouTube+Data+API&type=video&key={self.api_key}"
+            )
+
+            if not r.ok:
+                raise OauthException(
+                    "Youtube API Validation Failed. Please check YouTube Data API is enabled in the Google Developer Console.\nOr Check your api_key is enter correctly."
+                )
+
+        except Exception:
             raise OauthException(
                 "Youtube API Validation Failed. Please check YouTube Data API is enabled in the Google Developer Console.\nOr Check your api_key is enter correctly."
             )
