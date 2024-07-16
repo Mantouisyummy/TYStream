@@ -60,7 +60,8 @@ class Twitch:
             timeout=10
         )
 
-        user_data = user.json()['data']
+        user_data = user.json()['data'][0]
+        print(user_data)
         return TwitchUserData(**user_data)
 
 

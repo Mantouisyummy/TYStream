@@ -43,7 +43,6 @@ class TwitchUserData:
     profile_image_url: str
     offline_image_url: str
     view_count: int
-    email: str
     created_at: str
 
 @dataclass
