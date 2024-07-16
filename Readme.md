@@ -3,8 +3,8 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]  
-![PyPI - Version](https://img.shields.io/pypi/v/tystream?style=for-the-badge&color=green&link=https%3A%2F%2Fpypi.org%2Fproject%2Ftystream%2F)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tystream?style=for-the-badge&link=https%3A%2F%2Fpypi.org%2Fproject%2Ftystream%2F)
+[![PyPI - Version][pypi-version-shield]][pypi-url]
+[![PyPI - PyVersion][pypi-pyversion-shield]][pypi-url]
 # TYStream
 TYStream is A Python library for Twitch & Youtube Stream Notification.
 
@@ -93,6 +93,12 @@ async def main():
 asyncio.run(main())
 ```
 <!-- SHIELDS -->
+
+[pypi-pyversion-shield]: https://img.shields.io/pypi/pyversions/tystream?style=for-the-badge
+
+[pypi-version-shield]: https://img.shields.io/pypi/v/tystream?style=for-the-badge&color=green
+
+[pypi-url]: https://pypi.org/project/tystream/
 
 [contributors-shield]: https://img.shields.io/github/contributors/Mantouisyummy/TYStream.svg?style=for-the-badge
 
