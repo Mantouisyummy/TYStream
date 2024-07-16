@@ -1,11 +1,13 @@
 # pylint: disable=missing-module-docstring
 # pylint: disable=too-few-public-methods
-import logging
-import aiohttp
+from typing import Optional
 
 from tystream.async_api.oauth import TwitchOauth
 from tystream.logger import setup_logging
 from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchUserData
+
+import logging
+import aiohttp
 
 class Twitch:
     """
@@ -57,7 +59,7 @@ class Twitch:
                 user_data = data["data"][0]
                 return TwitchUserData(**user_data)
 
-    async def check_stream_live(self, streamer_name: str) -> TwitchStreamData | bool:
+    async def check_stream_live(self, streamer_name: str) -> Optional[TwitchStreamData]:
         """
         Check if stream is live.
 

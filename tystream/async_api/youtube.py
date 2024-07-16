@@ -1,3 +1,5 @@
+from typing import Optional
+
 from tystream.logger import setup_logging
 
 from tystream.exceptions import NoResultException
@@ -8,6 +10,7 @@ import aiohttp
 import logging
 
 class Youtube:
+    BASE_URL = "https://www.googleapis.com/youtube/v3"
     """
     A class for interacting with the YouTube API to check the status of live streams.
     """
@@ -17,7 +20,6 @@ class Youtube:
         self.oauth = YoutubeOauth(api_key)
 
         self.logger = logging.getLogger(__name__)
-        self.BASE_URL = "https://www.googleapis.com/youtube/v3"
 
     async def _get_channel_id(self, username: str) -> str:
         """
@@ -73,7 +75,7 @@ class Youtube:
                 else:
                     return False
     
-    async def check_stream_live(self, username: str) -> YoutubeStreamData:
+    async def check_stream_live(self, username: str) -> Optional[YoutubeStreamData]:
         """
         Check if stream is live.
 

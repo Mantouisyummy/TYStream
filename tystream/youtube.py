@@ -1,6 +1,6 @@
 from tystream.logger import setup_logging
 
-from typing import Optional, Literal
+from typing import Optional
 
 from tystream.exceptions import NoResultException
 from tystream.oauth import YoutubeOauth
@@ -11,6 +11,8 @@ import logging
 
 
 class Youtube:
+    BASE_URL = "https://www.googleapis.com/youtube/v3"
+
     def __init__(
         self, api_key: str, session: Optional[requests.Session] = None
     ) -> None:
@@ -23,7 +25,6 @@ class Youtube:
         self.logger = logging.getLogger(__name__)
 
         self.session = session or requests.Session()
-        self.BASE_URL = "https://www.googleapis.com/youtube/v3"
 
     def _get_channel_id(self, username: str) -> str:
         """
@@ -82,7 +83,7 @@ class Youtube:
         else:
             return False
 
-    def check_stream_live(self, username: str) -> YoutubeStreamData | bool:
+    def check_stream_live(self, username: str) -> Optional[YoutubeStreamData]:
         """
         Check if stream is live.
 
