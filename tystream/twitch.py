@@ -61,7 +61,6 @@ class Twitch:
         )
 
         user_data = user.json()['data'][0]
-        print(user_data)
         return TwitchUserData(**user_data)
 
 
