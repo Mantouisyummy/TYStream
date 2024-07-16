@@ -82,7 +82,7 @@ class Youtube:
         else:
             return False
 
-    def check_stream_live(self, username: str) -> YoutubeStreamData:
+    def check_stream_live(self, username: str) -> YoutubeStreamData | bool:
         """
         Check if stream is live.
 

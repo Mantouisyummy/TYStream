@@ -64,7 +64,7 @@ class Twitch:
         return TwitchUserData(**user_data)
 
 
-    def check_stream_live(self, streamer_name: str) -> TwitchStreamData:
+    def check_stream_live(self, streamer_name: str) -> TwitchStreamData | bool:
         """
         Check if stream is live.
 
