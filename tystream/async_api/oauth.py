@@ -19,9 +19,7 @@ class TwitchOauth:
 
     async def validation_token(self):
         async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"https://id.twitch.tv/oauth2/validate"
-            ) as response:
+            async with session.get(f"https://id.twitch.tv/oauth2/validate") as response:
                 if response.ok:
                     return True
                 else:

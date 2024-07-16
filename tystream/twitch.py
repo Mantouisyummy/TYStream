@@ -10,10 +10,12 @@ from tystream.oauth import TwitchOauth
 from tystream.logger import setup_logging
 from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchUserData
 
+
 class Twitch:
     """
     A class for interacting with the Twitch API to check the status of live streams.
     """
+
     def __init__(
         self,
         client_id: str,
@@ -58,12 +60,11 @@ class Twitch:
         user = self.session.get(
             "https://api.twitch.tv/helix/users?login=" + streamer_name,
             headers=headers,
-            timeout=10
+            timeout=10,
         )
 
-        user_data = user.json()['data'][0]
+        user_data = user.json()["data"][0]
         return TwitchUserData(**user_data)
-
 
     def check_stream_live(self, streamer_name: str) -> Optional[TwitchStreamData]:
         """
@@ -87,7 +88,7 @@ class Twitch:
         stream = self.session.get(
             "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
             headers=headers,
-            timeout=10
+            timeout=10,
         )
         stream_data = stream.json()
 
@@ -97,14 +98,13 @@ class Twitch:
         self.logger.debug(25, "%s is live!", streamer_name)
         return TwitchStreamData(**stream_data["data"][0], user=user)
 
-
     def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
         Retrieve the latest Twitch Stream VOD data.
 
         Parameters
         ----------
-        streamer_name : :class:`str` 
+        streamer_name : :class:`str`
             The name of the streamer.
 
         Returns
@@ -123,8 +123,8 @@ class Twitch:
         vod = self.session.get(
             f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
             headers=headers,
-            timeout=10
+            timeout=10,
         )
-        vod_data = vod.json()['data'][0]
+        vod_data = vod.json()["data"][0]
 
         return TwitchVODData(**vod_data)

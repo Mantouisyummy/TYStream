@@ -9,6 +9,7 @@ from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchU
 import logging
 import aiohttp
 
+
 class Twitch:
     """
     A class for interacting with the Twitch API to check the status of live streams.
@@ -53,7 +54,7 @@ class Twitch:
             async with session.get(
                 "https://api.twitch.tv/helix/users?login=" + streamer_name,
                 headers=headers,
-                timeout=10
+                timeout=10,
             ) as user:
                 data = await user.json()
                 user_data = data["data"][0]
@@ -115,7 +116,7 @@ class Twitch:
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
-                headers=headers
+                headers=headers,
             ) as vod:
                 vod_data = await vod.json()["data"][0]
                 return TwitchVODData(**vod_data)
