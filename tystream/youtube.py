@@ -45,7 +45,7 @@ class Youtube:
         :class:`NoResultException`
             If no channel is found for the given username.
         """
-        url = f"https://www.googleapis.com/youtube/v3/channels?part=snippet \
+        url = f"{self.BASE_URL}/channels?part=snippet \
         &forHandle={username}&key={self.oauth.api_key}"
 
         response = self.session.get(url)
@@ -72,7 +72,7 @@ class Youtube:
             The ID of the live stream if a live stream is found.
             False if no live stream is found.
         """
-        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet \
+        url = f"{self.BASE_URL}/search?part=snippet \
         &channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
 
         response = self.session.get(url)
