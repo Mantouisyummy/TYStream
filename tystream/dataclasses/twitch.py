@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from typing import List, Dict
 
@@ -108,6 +108,8 @@ class TwitchStreamData:
     def __post_init__(self):
         self.url = "https://www.twitch.tv/" + self.user_login
         self.thumbnail_url = self.thumbnail_url.replace("{width}x{height}", "1920x1080")
+        if isinstance(self.started_at, str):
+            self.started_at = datetime.strptime(self.started_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
 @dataclass
 class TwitchVODData:
@@ -158,8 +160,8 @@ class TwitchVODData:
     user_name: str = field(default=None)
     title: str = field(default=None)
     description: str = field(default=None)
-    created_at: str = field(default=None)
-    published_at: str = field(default=None)
+    created_at: datetime = field(default=None)
+    published_at: datetime = field(default=None)
     url: str = field(default=None)
     thumbnail_url: str = field(default=None)
     viewable: str = field(default=None)
@@ -171,3 +173,7 @@ class TwitchVODData:
 
     def __post_init__(self):
         self.thumbnail_url = self.thumbnail_url.replace("%{width}x%{height}", "320x180")
+        for field_name in ["created_at", "published_at"]:
+            value = getattr(self, field_name)
+            if isinstance(value, str):
+                setattr(self, field_name, datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc))
