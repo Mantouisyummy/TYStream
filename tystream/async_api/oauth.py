@@ -13,9 +13,8 @@ class TwitchOauth:
 
     @staticmethod
     async def is_token_expired(token_info):
-        if not token_info:
-            return True
-        return int(time.time()) >= token_info.get("expires_at", 0)
+        now = int(time.time())
+        return now - token_info["expires_in"] < 60
 
     @staticmethod
     async def validate_token(access_token: str) -> bool:
