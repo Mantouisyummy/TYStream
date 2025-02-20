@@ -22,20 +22,22 @@ class AsyncTwitch(BaseStreamPlatform):
         self._token_cache = {"token": None, "expires_at": 0}
 
     async def _renew_token(self) -> Optional[str]:
-        """Token management with caching"""
         current_time = time.time()
-        if (self._token_cache["token"] and
-                current_time < self._token_cache["expires_at"] - 300):
+
+        if self._token_cache.get("token") and current_time < self._token_cache.get("expires_at", 0) - 300:
             return self._token_cache["token"]
 
         oauth = TwitchOauth(self.client_id, self.client_secret)
-        await oauth.validation_token()
+
         token = await oauth.get_access_token()
+
+        token_info = oauth.cache_handler.get_cached_token()
 
         self._token_cache = {
             "token": token,
-            "expires_at": current_time + 3600
+            "expires_at": token_info["expires_at"]
         }
+
         return token
 
     async def _get_headers(self) -> Dict[str, str]:

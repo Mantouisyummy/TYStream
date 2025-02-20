@@ -13,39 +13,40 @@ class TwitchOauth:
 
     @staticmethod
     async def is_token_expired(token_info):
-        now = int(time.time())
-        return now - token_info["expires_in"] < 60
+        if not token_info:
+            return True
+        return int(time.time()) >= token_info.get("expires_at", 0)
 
-    async def validation_token(self):
+    @staticmethod
+    async def validate_token(access_token: str) -> bool:
+        headers = {"Authorization": f"OAuth {access_token}"}
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://id.twitch.tv/oauth2/validate") as response:
-                if response.ok:
-                    return True
-                else:
-                    raise OauthException("Twitch API Validation Failed.")
+            async with session.get("https://id.twitch.tv/oauth2/validate", headers=headers) as response:
+                return response.status == 200
 
-    async def get_access_token(self) -> str:
-        token_info = self.cache_handler.get_cached_token()
-        if token_info and not await self.is_token_expired(token_info):
-            return token_info["access_token"]
-
+    async def fetch_new_token(self) -> dict:
         data = {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
             "grant_type": "client_credentials",
         }
-
         async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://id.twitch.tv/oauth2/token", data
-            ) as response:
+            async with session.post("https://id.twitch.tv/oauth2/token", data=data) as response:
                 if response.ok:
-                    token_info = await response.json()
-                    self.cache_handler.save_token_to_cache(token_info)
-                    access_token = token_info["access_token"]
-                    return access_token
+                    return await response.json()
                 else:
                     raise OauthException("Twitch Get Access Token Failed.")
+
+    async def get_access_token(self) -> str:
+        token_info = self.cache_handler.get_cached_token()
+
+        if token_info and not await self.is_token_expired(token_info):
+            if await self.validate_token(token_info["access_token"]):
+                return token_info["access_token"]
+
+        new_token_info = await self.fetch_new_token()
+        self.cache_handler.save_token_to_cache(new_token_info)
+        return new_token_info["access_token"]
 
 
 class YoutubeOauth:

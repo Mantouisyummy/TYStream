@@ -28,7 +28,7 @@ class TwitchOauth:
         if response.ok:
             return True
         else:
-            raise OauthException("Twitch API Validation Failed.")
+            raise OauthException(f"Twitch API Validation Failed. Error: {response.json()}")
 
     def get_access_token(self) -> str:
         token_info = self.cache_handler.get_cached_token()
