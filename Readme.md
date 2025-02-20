@@ -63,9 +63,9 @@ from tystream.async_api import AsyncTwitch
 import asyncio
 
 async def main():
-    twitch = AsyncTwitch("client_id", "client_secret")
-    stream = await twitch.check_stream_live("streamer_name")
-    print(stream)
+    async with AsyncTwitch("client_id", "client_secret") as twitch:
+        stream = await twitch.check_stream_live("streamer_name")
+        print(stream)
 
 asyncio.run(main())
 ```
@@ -86,9 +86,9 @@ from tystream.async_api import AsyncYoutube
 import asyncio
 
 async def main():
-    youtube = AsyncYoutube("api_key")
-    stream = await youtube.check_stream_live("streamer_name")
-    print(stream)
+    async with AsyncYoutube("api_key") as youtube:
+        stream = await youtube.check_stream_live("streamer_name")
+        print(stream)
 
 asyncio.run(main())
 ```
