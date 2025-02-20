@@ -1,7 +1,6 @@
 import aiohttp
 import time
 
-from typing import Optional
 from tystream.cache_handler import CacheFileHandler
 from tystream.exceptions import OauthException
 
