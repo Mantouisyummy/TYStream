@@ -72,7 +72,8 @@ class BaseStreamPlatform(ABC):
             return cache_data
         return None
 
-    def _set_cache(self, cache_dict: Dict, key: str, data: Dict) -> None:
+    @staticmethod
+    def _set_cache(cache_dict: Dict, key: str, data: Dict) -> None:
         """
         Generic cache setter.
         """
