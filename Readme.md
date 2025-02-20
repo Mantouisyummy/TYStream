@@ -59,11 +59,11 @@ print(stream)
 ```
 ### 非同步方法
 ```py
-from tystream.async_api import Twitch
+from tystream.async_api import AsyncTwitch
 import asyncio
 
 async def main():
-    twitch = Twitch("client_id", "client_secret")
+    twitch = AsyncTwitch("client_id", "client_secret")
     stream = await twitch.check_stream_live("streamer_name")
     print(stream)
 
@@ -82,11 +82,11 @@ print(stream)
 ```
 ### 非同步方法
 ```py
-from tystream.async_api import Youtube
+from tystream.async_api import AsyncYoutube
 import asyncio
 
 async def main():
-    youtube = Youtube("")
+    youtube = AsyncYoutube("")
     stream = await youtube.check_stream_live("streamer_name")
     print(stream)
 
