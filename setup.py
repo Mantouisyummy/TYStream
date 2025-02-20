@@ -1,5 +1,5 @@
 from os import path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open(path.join(path.abspath(path.dirname(__file__)), 'Readme.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -22,7 +22,7 @@ setup(name='tystream',
           "colorlog>=6.8.2",
           "aiohttp>=3.8.6"
       ],
-      packages=['tystream'],
+      packages=find_packages(),
       keywords=['Twitch', 'Youtube', 'stream', 'stream Notification', 'Notification'],
       license='GNU',
       classifiers=[
