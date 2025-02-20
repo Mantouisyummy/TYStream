@@ -1,31 +1,24 @@
-from typing import Optional
+from typing import Optional, Dict, Any
+import time
+import aiohttp
 
-from tystream.logger import setup_logging
-
+from tystream.async_api import BaseStreamPlatform
 from tystream.exceptions import NoResultException
 from tystream.async_api.oauth import YoutubeOauth
 from tystream.dataclasses.youtube import YoutubeStreamData
 
-import aiohttp
-import logging
 
-
-class Youtube:
+class AsyncYoutube(BaseStreamPlatform):
     BASE_URL = "https://www.googleapis.com/youtube/v3"
-    """
-    A class for interacting with the YouTube API to check the status of live streams.
-    """
 
-    def __init__(self, api_key: str) -> None:
-        setup_logging()
-
+    def __init__(self, api_key: str, cache_ttl: int = 300) -> None:
+        super().__init__(cache_ttl)
         self.oauth = YoutubeOauth(api_key)
-
-        self.logger = logging.getLogger(__name__)
+        self._channel_cache: Dict[str, Dict[str, Any]] = {}
 
     async def _get_channel_id(self, username: str) -> str:
         """
-        Get the ID of a YouTube channel by its username.
+        Get the ID of a YouTube channel by its username with caching.
 
         Parameters
         ----------
@@ -42,19 +35,31 @@ class Youtube:
         :class:`NoResultException`
             If no channel is found for the given username.
         """
-        url = f"{self.BASE_URL}/channels?part=snippet&forHandle={username}&key={self.oauth.api_key}"
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                result = await response.json()
-                if result["items"]:
-                    return result["items"][0]["id"]
-                else:
-                    raise NoResultException("Not Found Any Channel.")
+        cache_key = username.lower()
+        cache_data = self._get_cache(self._channel_cache, cache_key)
+        if cache_data:
+            return cache_data["id"]
+
+        result = await self._make_request(
+            f"{self.BASE_URL}/channels",
+            params={
+                "part": "snippet",
+                "forHandle": username,
+                "key": self.oauth.api_key
+            }
+        )
+
+        if not result.get("items"):
+            raise NoResultException("Not Found Any Channel.")
+
+        channel_id = result["items"][0]["id"]
+        self._set_cache(self._channel_cache, cache_key, {"id": channel_id})
+        return channel_id
 
     async def _get_live_id(self, channelid: str) -> str:
         """
-        Get the ID of the live stream for a YouTube channel.
+        Get the ID of the live stream for a YouTube channel with caching.
 
         Parameters
         ----------
@@ -67,23 +72,32 @@ class Youtube:
             The ID of the live stream if a live stream is found.
             Return False if no live stream is found.
         """
-        url = f"{self.BASE_URL}/search?part=snippet&channelId={channelid}&eventType=live&type=video&key={self.oauth.api_key}"
+        cache_data = self._get_cache(self._stream_cache, channelid)
+        if cache_data:
+            return cache_data["live_id"]
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                result = await response.json()
-                if result["items"]:
-                    return result["items"][0]["id"]["videoId"]
-                else:
-                    return False
+        result = await self._make_request(
+            f"{self.BASE_URL}/search",
+            params={
+                "part": "snippet",
+                "channelId": channelid,
+                "eventType": "live",
+                "type": "video",
+                "key": self.oauth.api_key
+            }
+        )
 
-    async def check_stream_live(self, username: str) -> Optional[YoutubeStreamData]:
+        live_id = result["items"][0]["id"]["videoId"] if result.get("items") else False
+        self._set_cache(self._stream_cache, channelid, {"live_id": live_id})
+        return live_id
+
+    async def check_stream_live(self, username: str) -> bool | YoutubeStreamData:
         """
-        Check if stream is live.
+        Check if stream is live with optimized performance.
 
         Parameters
         ----------
-        username : :class:`str`
+        username: :class:`str`
             The username of the YouTube channel.
 
         Returns
@@ -94,20 +108,32 @@ class Youtube:
         """
         await self.oauth.validation_token()
 
-        channelId = await self._get_channel_id(username)
-        LiveId = await self._get_live_id(channelId)
+        try:
+            channel_id = await self._get_channel_id(username)
+            live_id = await self._get_live_id(channel_id)
 
-        if LiveId:
-            url = f"{self.BASE_URL}/videos?part=id%2C+snippet&id={LiveId}&key={self.oauth.api_key}"
+            if not live_id:
+                self.logger.debug(20, f"{username} is not live.")
+                return False
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    result = await response.json()
-                    snippet = result["items"][0]["snippet"]
-                    data = {k: snippet[k] for k in list(snippet.keys())[:7]}
+            result = await self._make_request(
+                f"{self.BASE_URL}/videos",
+                params={
+                    "part": "id,snippet",
+                    "id": live_id,
+                    "key": self.oauth.api_key
+                }
+            )
 
-                    self.logger.debug(20, f"{username} is live!")
-                    return YoutubeStreamData(id=LiveId, **data)
-        else:
-            self.logger.debug(20, f"{username} is not live.")
+            snippet = result["items"][0]["snippet"]
+            data = {k: snippet[k] for k in list(snippet.keys())[:7]}
+
+            self.logger.debug(20, f"{username} is live!")
+            return YoutubeStreamData(id=live_id, **data)
+
+        except NoResultException:
+            self.logger.debug(20, f"Channel not found for {username}")
             return False
+        except Exception as e:
+            self.logger.error(f"Error checking stream status for {username}: {str(e)}")
+            raise

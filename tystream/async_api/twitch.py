@@ -1,46 +1,57 @@
 # pylint: disable=missing-module-docstring
 # pylint: disable=too-few-public-methods
-from typing import Optional
-
-from tystream.async_api.oauth import TwitchOauth
-from tystream.logger import setup_logging
-from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchUserData
-
-import logging
+from typing import Optional, Dict
+import time
 import aiohttp
 
+from tystream.async_api.base import BaseStreamPlatform
+from tystream.async_api.oauth import TwitchOauth
+from tystream.dataclasses.twitch import TwitchStreamData, TwitchVODData, TwitchUserData
 
-class Twitch:
-    """
-    A class for interacting with the Twitch API to check the status of live streams.
-    """
 
-    def __init__(self, client_id: str, client_secret: str) -> None:
-        setup_logging()
-
+class AsyncTwitch(BaseStreamPlatform):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        cache_ttl: int = 300
+    ) -> None:
+        super().__init__(cache_ttl)
         self.client_id = client_id
         self.client_secret = client_secret
-        self.logger = logging.getLogger(__name__)
+        self._token_cache = {"token": None, "expires_at": 0}
 
-    async def _renew_token(self):
+    async def _renew_token(self) -> Optional[str]:
+        """Token management with caching"""
+        current_time = time.time()
+        if (self._token_cache["token"] and
+                current_time < self._token_cache["expires_at"] - 300):
+            return self._token_cache["token"]
+
         oauth = TwitchOauth(self.client_id, self.client_secret)
         await oauth.validation_token()
-        return await oauth.get_access_token()
+        token = await oauth.get_access_token()
 
-    async def _get_headers(self):
-        headers = {
-            "Client-ID": self.client_id,
-            "Authorization": "Bearer " + await self._renew_token(),
+        self._token_cache = {
+            "token": token,
+            "expires_at": current_time + 3600
         }
-        return headers
+        return token
+
+    async def _get_headers(self) -> Dict[str, str]:
+        """Get headers with cached token"""
+        return {
+            "Client-ID": self.client_id,
+            "Authorization": f"Bearer {await self._renew_token()}",
+        }
 
     async def get_user(self, streamer_name: str) -> TwitchUserData:
         """
-        Get Twitch User Info.
+        Get Twitch User Info with caching.
 
         Parameters
         ----------
-        streamer_name : :class:`str`
+        streamer_name: :class:`str`
             The streamer_name of the Twitch Live channel.
 
         Returns
@@ -48,25 +59,29 @@ class Twitch:
         :class:`TwitchUserData`
             Twitch User Dataclass.
         """
+
+        cache_key = streamer_name.lower()
+        cache_data = self._get_cache(self._user_cache, cache_key)
+        if cache_data:
+            return TwitchUserData(**cache_data["data"])
+
         headers = await self._get_headers()
+        result = await self._make_request(
+            f"https://api.twitch.tv/helix/users?login={streamer_name}",
+            headers=headers
+        )
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.twitch.tv/helix/users?login=" + streamer_name,
-                headers=headers,
-                timeout=10,
-            ) as user:
-                data = await user.json()
-                user_data = data["data"][0]
-                return TwitchUserData(**user_data)
+        user_data = result["data"][0]
+        self._set_cache(self._user_cache, cache_key, {"data": user_data})
+        return TwitchUserData(**user_data)
 
-    async def check_stream_live(self, streamer_name: str) -> Optional[TwitchStreamData]:
+    async def check_stream_live(self, streamer_name: str) -> bool | TwitchStreamData:
         """
-        Check if stream is live.
+        Check if stream is live with optimized caching.
 
         Parameters
         ----------
-        streamer_name : :class:`str`
+        streamer_name: :class:`str`
             The streamer_name of the Twitch Live channel.
 
         Returns
@@ -75,22 +90,37 @@ class Twitch:
             An instance of the TwitchStreamData class containing information about the live stream.
             If the stream is not live, returned False.
         """
+
+        cache_key = streamer_name.lower()
+        cache_data = self._get_cache(self._stream_cache, cache_key)
+        if cache_data:
+            if not cache_data["data"]:
+                return False
+            return TwitchStreamData(**cache_data["data"], user=cache_data["user"])
+
         headers = await self._get_headers()
         user = await self.get_user(streamer_name)
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.twitch.tv/helix/streams?user_login=" + streamer_name,
-                headers=headers,
-            ) as stream:
-                stream_data = await stream.json()
+        result = await self._make_request(
+            f"https://api.twitch.tv/helix/streams?user_login={streamer_name}",
+            headers=headers
+        )
 
-        if not stream_data["data"]:
+        if not result["data"]:
+            self._set_cache(self._stream_cache, cache_key, {
+                "data": None,
+                "user": user
+            })
             self.logger.debug(25, "%s is not live.", streamer_name)
             return False
 
+        self._set_cache(self._stream_cache, cache_key, {
+            "data": result["data"][0],
+            "user": user
+        })
+
         self.logger.debug(25, "%s is live!", streamer_name)
-        return TwitchStreamData(**stream_data["data"][0], user=user)
+        return TwitchStreamData(**result["data"][0], user=user)
 
     async def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
@@ -107,16 +137,16 @@ class Twitch:
             The latest Twitch VOD data.
 
         Notes:
-            It is recommended to execute this function\n
+            It is recommended to execute this function
             after the Stream is end in order to retrieve the latest VOD data.
         """
         headers = await self._get_headers()
-
         user = await self.get_user(streamer_name)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
-                headers=headers,
-            ) as vod:
-                vod_data = await vod.json()["data"][0]
-                return TwitchVODData(**vod_data)
+
+        async with self.session.get(
+            f"https://api.twitch.tv/helix/videos?user_id={user.id}&type=archive",
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as response:
+            vod_data = (await response.json())["data"][0]
+            return TwitchVODData(**vod_data)
