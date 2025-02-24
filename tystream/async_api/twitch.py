@@ -113,7 +113,7 @@ class AsyncTwitch(BaseStreamPlatform):
                 "data": None,
                 "user": user
             })
-            self.logger.debug(25, "%s is not live.", streamer_name)
+            self.logger.info(25, "%s is not live.", streamer_name)
             return False
 
         self._set_cache(self._stream_cache, cache_key, {
@@ -121,10 +121,10 @@ class AsyncTwitch(BaseStreamPlatform):
             "user": user
         })
 
-        self.logger.debug(25, "%s is live!", streamer_name)
+        self.logger.info(25, "%s is live!", streamer_name)
         return TwitchStreamData(**result["data"][0], user=user)
 
-    async def get_stream_vod(self, streamer_name: str) -> TwitchVODData:
+    async def get_latest_stream_vod(self, streamer_name: str) -> TwitchVODData:
         """
         Retrieve the latest Twitch Stream VOD data.
 
