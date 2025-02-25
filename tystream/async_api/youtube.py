@@ -147,8 +147,6 @@ class AsyncYoutube(BaseStreamPlatform):
 
             info = await asyncio.to_thread(extract_info)
 
-            print(info)
-
             if not info:
                 self.logger.log(20, f"{username} is not live (yt_dlp).")
                 return False
