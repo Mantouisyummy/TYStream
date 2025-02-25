@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 
 from datetime import datetime
 
-from typing import List
+from typing import List, Optional
+
 
 @dataclass(frozen=True)
 class Thumbnail:
@@ -47,6 +48,13 @@ class Thumbnails:
     maxres: Thumbnail
 
 @dataclass
+class LiveStreamingDetails:
+    actualStartTime: str
+    scheduledStartTime: str
+    concurrentViewers: Optional[int]
+    activeLiveChatId: str
+
+@dataclass
 class YoutubeStreamData:
     """
     Youtube Stream Resource Dataclass.
@@ -80,6 +88,7 @@ class YoutubeStreamData:
     thumbnails: Thumbnails = field(default=None)
     channelTitle: str = field(default=None)
     tags: List[str] = field(default_factory=list)
+    LiveDetails: Optional[LiveStreamingDetails] = field(default=None)
 
     def __post_init__(self):
         self.url = "https://www.youtube.com/watch?v=" + self.id

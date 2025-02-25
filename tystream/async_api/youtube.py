@@ -3,6 +3,7 @@ import time
 import aiohttp
 
 from tystream.async_api import BaseStreamPlatform
+from tystream.dataclasses import LiveStreamingDetails
 from tystream.exceptions import NoResultException
 from tystream.async_api.oauth import YoutubeOauth
 from tystream.dataclasses.youtube import YoutubeStreamData
@@ -119,17 +120,19 @@ class AsyncYoutube(BaseStreamPlatform):
             result = await self._make_request(
                 f"{self.BASE_URL}/videos",
                 params={
-                    "part": "id,snippet",
+                    "part": "id,snippet,liveStreamingDetails",
                     "id": live_id,
                     "key": self.oauth.api_key
                 }
             )
 
-            snippet = result["items"][0]["snippet"]
+            item = result["items"][0]
+            snippet = item["snippet"]
+            live_detail = item["liveStreamingDetails"]
             data = {k: snippet[k] for k in list(snippet.keys())[:7]}
 
             self.logger.debug(20, f"{username} is live!")
-            return YoutubeStreamData(id=live_id, **data)
+            return YoutubeStreamData(id=live_id, LiveDetails=LiveStreamingDetails(**live_detail), **data)
 
         except NoResultException:
             self.logger.debug(20, f"Channel not found for {username}")
