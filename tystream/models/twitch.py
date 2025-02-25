@@ -14,7 +14,7 @@ class TwitchUserData(BaseModel):
     broadcaster_type: str
     description: str
     profile_image_url: HttpUrl
-    offline_image_url: HttpUrl
+    offline_image_url: Optional[HttpUrl] = None
     view_count: int
     created_at: datetime
 
@@ -22,6 +22,13 @@ class TwitchUserData(BaseModel):
     @classmethod
     def parse_datetime(cls, value: str) -> datetime:
         return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+
+    @field_validator("offline_image_url", mode="before")
+    @classmethod
+    def validate_offline_image_url(cls, value):
+        if not value or value.strip() == "":
+            return None
+        return value
 
 
 class TwitchStreamData(BaseModel):
