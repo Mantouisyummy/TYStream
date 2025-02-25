@@ -1,7 +1,7 @@
 import asyncio
 import yt_dlp
 
-from typing import Dict, Any, Union, Optional, overload, Literal, Awaitable
+from typing import Dict, Any, Union, Optional, overload, Literal
 
 from tystream.async_api import BaseStreamPlatform
 from tystream.models import LiveStreamingDetails
