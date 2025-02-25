@@ -57,7 +57,7 @@ class BaseStreamPlatform(ABC):
             ) as response:
                 if response.status != 200:
                     self.logger.error(f"API request failed with status {response.status}")
-                    raise aiohttp.ClientError(f"API request failed: {response.status}")
+                    raise aiohttp.ClientError(f"API request failed: \n{await response.json()}")
                 return await response.json()
         except aiohttp.ClientError as e:
             self.logger.error(f"Request failed: {str(e)}")
