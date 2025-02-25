@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from typing import List, Optional
 
@@ -49,10 +49,14 @@ class Thumbnails:
 
 @dataclass
 class LiveStreamingDetails:
-    actualStartTime: str
-    scheduledStartTime: str
+    actualStartTime: datetime
+    scheduledStartTime: datetime
     concurrentViewers: Optional[int]
     activeLiveChatId: str
+
+    def __post_init__(self):
+        self.actualStartTime = datetime.strptime(self.actualStartTime, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        self.scheduledStartTime = datetime.strptime(self.scheduledStartTime, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
 @dataclass
 class YoutubeStreamData:
