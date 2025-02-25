@@ -97,7 +97,7 @@ from tystream.async_api import AsyncYoutube # or SyncYoutube
 import asyncio
 
 async def main():
-    async with AsyncYoutube("api_key") as youtube:
+    async with AsyncYoutube() as youtube:
         stream = await youtube.check_stream_live("streamer_name", use_yt_dlp=True) # default is False
         print(stream)
 
