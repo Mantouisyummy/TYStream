@@ -34,7 +34,7 @@ class TwitchOauth:
                 if response.ok:
                     return await response.json()
                 else:
-                    raise OauthException("Twitch Get Access Token Failed.")
+                    raise OauthException("Twitch Get Access Token Failed. Detail: " + await response.json())
 
     async def get_access_token(self) -> str:
         token_info = self.cache_handler.get_cached_token()
@@ -61,5 +61,6 @@ class YoutubeOauth:
                     return True
                 else:
                     raise OauthException(
-                        "Youtube API Validation Failed. Please check YouTube Data API is enabled in the Google Developer Console.\nOr Check your api_key is enter correctly."
+                        f"Youtube API Validation Failed. Please check YouTube Data API is enabled in the Google Developer Console.\nOr Check your api_key is enter correctly.\n"
+                        f"Detail: {await response.json()}"
                     )

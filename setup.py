@@ -18,9 +18,11 @@ setup(name='tystream',
           'Issue Tracker': 'https://github.com/Mantouisyummy/TYStream'
       },
       install_requires=[
-          "requests>=2.25.0",
-          "colorlog>=6.8.2",
-          "aiohttp>=3.8.6"
+          "requests>=2.32.3",
+          "colorlog>=6.9.0",
+          "aiohttp>=3.11.13",
+          "yt-dlp>=2025.2.19",
+          "pydantic>=2.10.6"
       ],
       packages=find_packages(),
       keywords=['Twitch', 'Youtube', 'stream', 'stream Notification', 'Notification'],

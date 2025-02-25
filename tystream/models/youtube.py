@@ -1,12 +1,11 @@
-from dataclasses import dataclass, field
+from pydantic import BaseModel, field_validator, Field
 
 from datetime import datetime, timezone
 
 from typing import List, Optional
 
 
-@dataclass(frozen=True)
-class Thumbnail:
+class Thumbnail(BaseModel):
     """
     A map of thumbnail images associated with the Youtube video. The value is an object that contains other information about the thumbnail.
 
@@ -23,8 +22,7 @@ class Thumbnail:
     width: int
     height: int
 
-@dataclass(frozen=True)
-class Thumbnails:
+class Thumbnails(BaseModel):
     """
     A map of thumbnail images associated with the Youtube video. The key is the name of the thumbnail image.
 
@@ -47,21 +45,66 @@ class Thumbnails:
     standard: Thumbnail
     maxres: Thumbnail
 
-@dataclass
-class LiveStreamingDetails:
-    actualStartTime: datetime
-    scheduledStartTime: datetime
-    concurrentViewers: Optional[int]
+class LiveStreamingDetails(BaseModel):
+    concurrentViewers: Optional[int] = None
+    actualStartTime: Optional[datetime] = None
+    scheduledStartTime: Optional[datetime] = None
     activeLiveChatId: str
 
-    def __post_init__(self):
-        self.actualStartTime = datetime.strptime(self.actualStartTime, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-        self.scheduledStartTime = datetime.strptime(self.scheduledStartTime, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    @field_validator("actualStartTime", "scheduledStartTime", mode="before")
+    @classmethod
+    def parse_datetime(cls, value):
+        """處理 ISO 8601 帶 `Z`（UTC）格式的時間"""
+        if isinstance(value, str):
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        return value
 
-@dataclass
-class YoutubeStreamData:
+class YoutubeStreamDataYTDLP(BaseModel):
     """
-    Youtube Stream Resource Dataclass.
+    Youtube Stream Data Model using yt-dlp.
+
+    This class represents the metadata of a YouTube live stream or video
+    extracted using yt-dlp.
+
+    Attributes
+    ----------
+    fulltitle : str
+        The full title of the video.
+    timestamp : int
+        The Unix timestamp indicating when the video was published or streamed.
+    channel : str
+        The name of the channel that uploaded or is streaming the video.
+    concurrent_view_count : int
+        The number of concurrent viewers currently watching the live stream.
+    thumbnail : str
+        The URL of the video's thumbnail image.
+    description : str
+        The video's description.
+    channel_url : str
+        The URL of the YouTube channel that uploaded the video.
+    webpage_url : str
+        The URL of the YouTube video (video page link).
+    """
+
+    fulltitle: str
+    timestamp: int
+    channel: str
+    concurrent_view_count: int
+    thumbnail: str
+    description: str
+    channel_url: str
+    webpage_url: str
+
+    @field_validator("timestamp", mode="before")
+    @classmethod
+    def parse_timestamp(cls, value):
+        if isinstance(value, str):
+            return datetime.fromisoformat(value)
+        return value
+
+class YoutubeStreamDataAPI(BaseModel):
+    """
+    Youtube Stream Resource Dataclass using the Youtube API.
 
     Attributes
     ----------
@@ -83,16 +126,27 @@ class YoutubeStreamData:
         A list of keyword tags associated with the video. Tags may contain spaces.
     url: :class:`str`
         The video's url.
+    LiveDetails: :class:`Optional[LiveStreamingDetails]`
+        Detailed information about the live-streaming video, including the number of viewers in real time.
     """
-    id: str = field(default=None)
-    publishedAt: datetime = field(default=None)
-    channelId: str = field(default=None)
-    title: str = field(default=None)
-    description: str = field(default=None)
-    thumbnails: Thumbnails = field(default=None)
-    channelTitle: str = field(default=None)
-    tags: List[str] = field(default_factory=list)
-    LiveDetails: Optional[LiveStreamingDetails] = field(default=None)
+    id: str
+    publishedAt: datetime
+    channelId: str
+    title: str
+    description: str
+    thumbnails: Thumbnails
+    channelTitle: str
+    tags: List[str]
+    LiveDetails: Optional[LiveStreamingDetails] = None
 
-    def __post_init__(self):
-        self.url = "https://www.youtube.com/watch?v=" + self.id
+    @field_validator("publishedAt", mode="before")
+    @classmethod
+    def parse_publishedAt(cls, value):
+        if isinstance(value, str):
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        return value
+
+    @property
+    def url(self) -> str:
+        return f"https://www.youtube.com/watch?v={self.id}"
+

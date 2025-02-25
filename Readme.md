@@ -9,12 +9,11 @@
 TYStream is A Python library for Twitch & Youtube Stream Notification.
 
 ## 安裝套件
-```python
+```sh
 # Windows
 pip install tystream
 
 # Linux/MacOS
-
 python3 -m pip install tystream
 ```
 
@@ -52,8 +51,8 @@ python3 -m pip install tystream
 `streamer_name` 為 `twitch.tv/...` 後的名稱
 ### 同步方法
 ```py
-from tystream import Twitch
-twitch = Twitch("client_id", "client_secret")
+from tystream import SyncTwitch
+twitch = SyncTwitch("client_id", "client_secret")
 stream = twitch.check_stream_live("streamer_name")
 print(stream)
 ```
@@ -75,8 +74,8 @@ asyncio.run(main())
 `streamer_name` 為實況主頻道網址 `https://www.youtube.com/...` 後的名稱 (有無`@`都亦可)
 ### 同步方法
 ```py
-from tystream import Youtube
-youtube = Youtube("api_key")
+from tystream import SyncYoutube
+youtube = SyncYoutube("api_key")
 stream = youtube.check_stream_live("streamer_name")
 print(stream)
 ```

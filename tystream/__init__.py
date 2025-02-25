@@ -1,4 +1,2 @@
-from .twitch import *
-from .youtube import *
-
+from .sync_api import *
 from .async_api import *
