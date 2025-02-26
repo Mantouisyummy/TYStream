@@ -176,7 +176,7 @@ class AsyncYoutube(BaseStreamPlatform):
                 snippet = item["snippet"]
                 live_detail = item["liveStreamingDetails"]
                 data = {k: snippet[k] for k in
-                        ["title", "description", "publishedAt", "channelTitle", "categoryId", "tags"]}
+                        ["title", "description", "publishedAt", "channelTitle", "categoryId", "tags", "thumbnails", "channelId"]}
 
                 self.logger.log(20, f"{username} is live (API).")
                 return YoutubeStreamDataAPI(id=live_id, LiveDetails=LiveStreamingDetails(**live_detail), **data)
