@@ -20,8 +20,9 @@ YDL_OPTS = {
     "ignoreerrors": True,
     "default_search": "ytsearch",
     "live_from_start": False,
-    "force_json": True
+    "force_json": True,
 }
+
 
 class AsyncYoutube(BaseStreamPlatform):
     BASE_URL = "https://www.googleapis.com/youtube/v3"
@@ -57,12 +58,7 @@ class AsyncYoutube(BaseStreamPlatform):
             return cache_data["id"]
 
         result = await self._make_request(
-            f"{self.BASE_URL}/channels",
-            params={
-                "part": "snippet",
-                "forHandle": username,
-                "key": self.oauth.api_key
-            }
+            f"{self.BASE_URL}/channels", params={"part": "snippet", "forHandle": username, "key": self.oauth.api_key}
         )
 
         if not result.get("items"):
@@ -98,28 +94,28 @@ class AsyncYoutube(BaseStreamPlatform):
                 "channelId": channelid,
                 "eventType": "live",
                 "type": "video",
-                "key": self.oauth.api_key
-            }
+                "key": self.oauth.api_key,
+            },
         )
+
+        print("result", result)
 
         live_id = result["items"][0]["id"]["videoId"] if result.get("items") else False
         self._set_cache(self._stream_cache, channelid, {"live_id": live_id})
         return live_id
 
     @overload
-    async def check_stream_live(self, username: str) -> YoutubeStreamDataAPI:
-        ...
+    async def check_stream_live(self, username: str) -> YoutubeStreamDataAPI: ...
 
     @overload
-    async def check_stream_live(self, username: str, use_yt_dlp: Literal[False]) -> YoutubeStreamDataAPI:
-        ...
+    async def check_stream_live(self, username: str, use_yt_dlp: Literal[False]) -> YoutubeStreamDataAPI: ...
 
     @overload
-    async def check_stream_live(self, username: str, use_yt_dlp: Literal[True]) -> YoutubeStreamDataYTDLP:
-        ...
+    async def check_stream_live(self, username: str, use_yt_dlp: Literal[True]) -> YoutubeStreamDataYTDLP: ...
 
-    async def check_stream_live(self, username: str, use_yt_dlp: bool = False) -> Union[
-        YoutubeStreamDataAPI, YoutubeStreamDataYTDLP, bool]:
+    async def check_stream_live(
+        self, username: str, use_yt_dlp: bool = False
+    ) -> Union[YoutubeStreamDataAPI, YoutubeStreamDataYTDLP, bool]:
         """
         Check if a YouTube stream is live, either using the YouTube API or yt_dlp.
 
@@ -137,10 +133,14 @@ class AsyncYoutube(BaseStreamPlatform):
         - `False` if the stream is not live.
         """
         if use_yt_dlp:
+
             def extract_info():
                 try:
                     with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
-                        return ydl.extract_info(f"https://youtube.com/{(username if username.startswith('@') else '@' + username)}/live", download=False)
+                        return ydl.extract_info(
+                            f"https://youtube.com/{(username if username.startswith('@') else '@' + username)}/live",
+                            download=False,
+                        )
                 except Exception as e:
                     self.logger.error(f"Error using yt_dlp to request: {e}")
                     return None
@@ -165,18 +165,24 @@ class AsyncYoutube(BaseStreamPlatform):
 
                 result = await self._make_request(
                     f"{self.BASE_URL}/videos",
-                    params={
-                        "part": "id,snippet,liveStreamingDetails",
-                        "id": live_id,
-                        "key": self.oauth.api_key
-                    }
+                    params={"part": "id,snippet,liveStreamingDetails", "id": live_id, "key": self.oauth.api_key},
                 )
 
                 item = result["items"][0]
                 snippet = item["snippet"]
                 live_detail = item["liveStreamingDetails"]
-                data = {k: snippet[k] for k in
-                        ["title", "description", "publishedAt", "channelTitle", "categoryId", "tags", "thumbnails", "channelId"]}
+                data = {
+                    k: snippet[k]
+                    for k in [
+                        "title",
+                        "description",
+                        "publishedAt",
+                        "channelTitle",
+                        "categoryId",
+                        "thumbnails",
+                        "channelId",
+                    ]
+                }
 
                 self.logger.log(20, f"{username} is live (API).")
                 return YoutubeStreamDataAPI(id=live_id, LiveDetails=LiveStreamingDetails(**live_detail), **data)

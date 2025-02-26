@@ -42,8 +42,8 @@ class Thumbnails(BaseModel):
     default: Thumbnail
     medium: Thumbnail
     high: Thumbnail
-    standard: Thumbnail
-    maxres: Thumbnail
+    standard: Optional[Thumbnail] = None  # 允許為 None
+    maxres: Optional[Thumbnail] = None  # 允許為 None
 
 class LiveStreamingDetails(BaseModel):
     concurrentViewers: Optional[int] = None
@@ -136,7 +136,6 @@ class YoutubeStreamDataAPI(BaseModel):
     description: str
     thumbnails: Thumbnails
     channelTitle: str
-    tags: List[str]
     LiveDetails: Optional[LiveStreamingDetails] = None
 
     @field_validator("publishedAt", mode="before")
@@ -144,6 +143,13 @@ class YoutubeStreamDataAPI(BaseModel):
     def parse_publishedAt(cls, value):
         if isinstance(value, str):
             return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        return value
+
+    @field_validator("thumbnails", mode="before")
+    @classmethod
+    def parse_thumbnails(cls, value):
+        if isinstance(value, dict):
+            return Thumbnails(**value)
         return value
 
     @property
