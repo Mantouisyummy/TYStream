@@ -48,7 +48,7 @@ class TwitchStreamData(BaseModel):
     language: str
     thumbnail_url: HttpUrl
     is_mature: bool = Field(default=False)
-    tags: List[str]
+    tags: Optional[List[str]] = None
     user: TwitchUserData
 
     @field_validator("started_at", mode="before")
@@ -86,7 +86,7 @@ class TwitchVODData(BaseModel):
     language: str
     type: str
     duration: str
-    muted_segments: List[Dict]
+    muted_segments: Optional[List[Dict]] = None
 
     @field_validator("created_at", "published_at", mode="before")
     @classmethod
